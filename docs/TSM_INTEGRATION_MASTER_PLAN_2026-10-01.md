@@ -89,3 +89,82 @@ Only after sufficient history, derive explicitly labelled hypotheses such as lik
 10. TSM-INT-09 Hypothesis layer
 
 **Implementation instruction:** auditability and truth labels take priority over aggressive inference.
+
+## Additional wave — structured-source extraction and rendered-page evidence
+
+### extruct structured-data extraction — ADOPT
+
+Reference: https://github.com/scrapinghub/extruct
+
+Before relying on brittle DOM selectors, inspect public structured metadata exposed by the page:
+
+- JSON-LD;
+- microdata;
+- RDFa;
+- Open Graph;
+- other supported embedded structures.
+
+For product pages, preserve the raw structured block and parse candidate fields such as:
+
+- product/name;
+- brand;
+- offers/price/currency;
+- availability;
+- colour/size where exposed;
+- canonical URL;
+- image.
+
+Important: structured metadata is still a **public observed source**, not an internal TSUM fact. It can be stale or incomplete and must be cross-checked against rendered/server evidence.
+
+Store:
+
+- structured-data type/source;
+- parser version;
+- raw block hash;
+- extracted fields;
+- conflict indicators versus rendered/API observations.
+
+### SingleFile rendered-page snapshot — ADOPT/CONDITIONAL
+
+Reference: https://github.com/gildas-lormeau/SingleFile
+
+Use for selected audit samples or important change events, not necessarily every page every day.
+
+Capture a self-contained rendered HTML snapshot when:
+
+- parser/schema changes;
+- product materially changes;
+- a disputed/important observation needs human review;
+- collector regression fixtures are created.
+
+This complements WARC:
+
+- WARC = raw request/response evidence;
+- SingleFile snapshot = human-reviewable rendered-page evidence.
+
+Do not rely on SingleFile as the primary data extraction path.
+
+### Structured-vs-rendered reconciliation
+
+Add an explicit observation-quality layer:
+
+`raw HTTP/WARC + structured metadata + rendered DOM -> normalized observation + conflicts`
+
+Example conflict flags:
+
+- JSON-LD price differs from visible price;
+- structured availability says InStock but variant UI shows unavailable;
+- canonical/product ID changed;
+- structured metadata disappeared after collector release.
+
+A conflict should downgrade confidence or queue review, not be silently resolved by whichever parser ran last.
+
+### Acceptance extension
+
+- important observations can be reconstructed from raw and rendered evidence;
+- structured metadata parser version is recorded;
+- conflicts are visible as data-quality facts;
+- no structured field is promoted to internal-sales/inventory truth.
+
+**Sequencing:** extruct can be added during normalisation; SingleFile follows the WARC/snapshot framework and should be sampling/event driven to control storage.
+
