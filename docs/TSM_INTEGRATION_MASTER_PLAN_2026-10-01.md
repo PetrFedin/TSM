@@ -168,3 +168,103 @@ A conflict should downgrade confidence or queue review, not be silently resolved
 
 **Sequencing:** extruct can be added during normalisation; SingleFile follows the WARC/snapshot framework and should be sampling/event driven to control storage.
 
+## Additional wave — assortment change points, survival analysis and reproducible analytical reports
+
+This wave adds stronger longitudinal analysis without crossing the line from observable public behaviour to internal sales/stock claims.
+
+### Change-point detection — ADAPT
+
+Reference: https://github.com/deepcharles/ruptures
+
+Use change-point methods on sufficiently long, quality-controlled time series such as:
+
+- active assortment count by brand/category;
+- observed price/discount depth;
+- share of sizes observed available;
+- new/removed product rate;
+- category/brand mix.
+
+Purpose:
+
+- flag structural assortment/markdown regime changes;
+- prioritize analyst review;
+- compare periods more objectively.
+
+A detected change point is a statistical signal, not proof of a commercial event/cause. Always show the underlying series and data-quality state.
+
+### Product / Assortment Survival Analysis — ADAPT
+
+Reference: https://github.com/CamDavidsonPilon/lifelines
+
+Use survival methods for observable durations such as:
+
+- days a product remains publicly listed;
+- time until first observed markdown;
+- time until observed disappearance;
+- duration of a size/variant's observed availability.
+
+Important labels:
+
+- right-censored when the observation window ends;
+- source/collector coverage;
+- event definition.
+
+Never label disappearance as sale or sell-through. It is an observed website event only.
+
+### Collector Canary & Schema Drift Gate — ADOPT
+
+Before full daily collection, run a small fixed canary set of representative pages/endpoints.
+
+Canary checks:
+
+- HTTP/render success;
+- expected selectors/structured-data fields;
+- price availability;
+- product ID/canonical link;
+- variant extraction;
+- media;
+- extraction conflict rate.
+
+If the canary crosses failure thresholds, freeze publication of new analytical deltas and mark the collection run degraded rather than silently generating false market movements.
+
+### Reproducible Analytical Report Layer — ADOPT/ADAPT
+
+Reference: https://github.com/evidence-dev/evidence
+
+Use Evidence or the same pattern for version-controlled analyst-facing reports built from DuckDB/Parquet/validated snapshots.
+
+Every published report states:
+
+- observation window;
+- dataset/DVC version;
+- code SHA;
+- collector versions;
+- truth definitions;
+- caveats;
+- source/evidence links where practical.
+
+Evidence is a presentation layer; it must not become a new data authority.
+
+### Event Annotation Registry — ADOPT
+
+Create an analyst-maintained annotation table for known external/context events:
+
+- sale campaign;
+- website redesign;
+- assortment launch;
+- collection change;
+- collector/parser change;
+- public event/season boundary.
+
+This lets charts distinguish a statistical change from a known technical/content event without inventing causal claims.
+
+### Additional acceptance
+
+- change points are reproducible from a declared series/version;
+- survival analysis correctly treats censoring/observation gaps;
+- degraded canary stops misleading daily deltas;
+- analytical report links to exact dataset/code version;
+- annotations never silently transform correlation into causality.
+
+**Sequencing:** stable daily history + quality gate -> canary -> longitudinal metrics -> change-point/survival -> reproducible reports.
+
