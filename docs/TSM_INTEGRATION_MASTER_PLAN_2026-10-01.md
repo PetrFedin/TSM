@@ -268,3 +268,89 @@ This lets charts distinguish a statistical change from a known technical/content
 
 **Sequencing:** stable daily history + quality gate -> canary -> longitudinal metrics -> change-point/survival -> reproducible reports.
 
+## Additional wave — fashion visual embedding benchmark and visual assortment map
+
+TSM already plans visual similarity. This wave defines how to choose the embedding model honestly instead of assuming generic similarity is good enough for fashion assortment analysis.
+
+### OpenCLIP baseline — ADAPT
+
+Reference: https://github.com/mlfoundations/open_clip
+
+Create an offline embedding worker over admitted public product-image derivatives.
+
+Store only:
+
+- TSM product/observation ID;
+- image checksum;
+- model ID/version;
+- preprocessing version;
+- embedding/vector reference;
+- generated_at.
+
+Raw image evidence stays in the existing evidence/media layer.
+
+### Fashion-specific benchmark candidate — EVALUATE
+
+Reference: https://github.com/aimagelab/open-fashion-clip
+
+Evaluate a fashion-domain embedding model against the same labelled benchmark rather than adopting it automatically.
+
+Because upstream model/code licensing and model-weight terms may differ, confirm both before production use.
+
+### Human-labelled visual benchmark — ADOPT
+
+Build a small reviewed evaluation set covering questions TSM actually cares about:
+
+- same/near-identical model;
+- same silhouette/type;
+- visually similar style;
+- same colour family;
+- clearly unrelated.
+
+Record ambiguous cases separately.
+
+Compare:
+
+- cheap imagehash duplicate baseline;
+- generic OpenCLIP;
+- fashion-specific candidate(s).
+
+Choose the model per use case, not one universal score.
+
+### Visual Assortment Map — ADOPT
+
+Create a derived 2D/cluster analytical view from embeddings for:
+
+- assortment density;
+- near-duplicate clusters;
+- style whitespace;
+- brand/category overlap;
+- new item distance from existing assortment.
+
+The projection must always link back to real product observations/images.
+
+2D position is an analytical visualization, not a categorical truth or sales recommendation.
+
+### Cross-period visual change — ADOPT
+
+For stable embedding versions, measure:
+
+- cluster composition changes;
+- entrance of new style groups;
+- repeated/near-identical designs;
+- visual breadth by brand/category.
+
+Do not compare coordinates/vectors across changed model versions without a declared migration/re-embedding.
+
+### Additional acceptance
+
+- embedding result traces to exact image checksum + model/preprocess version;
+- human benchmark and ambiguity are retained;
+- model choice is justified by task-level metrics, not marketing claims;
+- similarity/cluster labels never become SKU identity automatically;
+- all longitudinal comparisons use compatible embedding versions.
+
+**Sequencing:** evidence/media snapshots -> imagehash baseline -> labelled benchmark -> OpenCLIP/fashion-model evaluation -> chosen vector index -> visual assortment map.
+
+**Dependency note:** confirm current model-weight and code licenses separately before production adoption.
+
