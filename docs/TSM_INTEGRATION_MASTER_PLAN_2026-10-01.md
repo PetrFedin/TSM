@@ -354,3 +354,79 @@ Do not compare coordinates/vectors across changed model versions without a decla
 
 **Dependency note:** confirm current model-weight and code licenses separately before production adoption.
 
+## Additional wave — visual-regression canary for collector integrity
+
+This wave detects site-layout changes that can break a collector even when HTTP requests still succeed.
+
+### Pixelmatch screenshot-diff canary — ADOPT
+
+Reference:
+
+https://github.com/mapbox/pixelmatch
+
+For a small fixed canary set of representative product/listing pages:
+
+Playwright render -> normalized screenshot -> compare with accepted baseline -> diff ratio/regions -> collector quality gate
+
+Use this alongside semantic/schema checks, not instead of them.
+
+### Baseline Authority — ADOPT
+
+Each visual baseline stores:
+
+- page/canary ID;
+- viewport/device profile;
+- locale;
+- captured_at;
+- site state/context;
+- screenshot checksum;
+- collector/browser version;
+- approved_by;
+- superseded_by.
+
+A new site design intentionally changes the baseline only after review.
+
+### Dynamic-region masking — ADOPT
+
+Mask/ignore known unstable regions where possible:
+
+- rotating banners;
+- timestamps;
+- personalised/recommended carousels;
+- cookie overlays;
+- dynamic counters.
+
+Otherwise visual diff noise will hide meaningful breakage.
+
+### Visual Breakage Classification — ADOPT
+
+Differentiate:
+
+- harmless visual/style change;
+- DOM/selector structure change;
+- price/availability region missing;
+- product image/content missing;
+- consent/interstitial blocking;
+- collector rendering failure.
+
+A severe canary failure should downgrade/freeze analytical publication for the affected collector path.
+
+### Human Review Artifact — ADOPT
+
+Store baseline/current/diff images for failed canaries so an analyst can quickly understand whether the website or collector changed.
+
+These images are QA evidence, not product observations unless separately admitted into the evidence pipeline.
+
+### Additional acceptance
+
+- canary suite uses fixed viewport/locale/browser settings;
+- approved baseline changes are versioned;
+- dynamic regions are controlled to reduce false positives;
+- visual failure cannot silently generate market deltas;
+- screenshot diff complements WARC/structured-data/schema checks;
+- report identifies exact collector/browser release.
+
+**Sequencing:** current collector canary -> screenshot baselines -> Pixelmatch diff -> severity rules -> publication gate.
+
+**Dependency note:** Pixelmatch is currently ISC-licensed upstream and should be used only on the small canary set, not as a replacement for structured collection.
+
